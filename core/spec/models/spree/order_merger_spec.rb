@@ -123,12 +123,11 @@ module Spree
         Spree::Cart::AddItem.call order: order_2, variant: variant_2, quantity: 1
       end
 
-      it 'creates errors with invalid line items' do
+      it 'raises error when trying to delete line items of destroyed variant' do
         # we cannot use .destroy here as it will be halted by
-        # :ensure_no_line_items callback
+        # :ensure_not_in_complete_orders callback
         variant_2.really_destroy!
-        subject.merge!(order_2)
-        expect(order_1.errors.full_messages).not_to be_empty
+        expect { subject.merge!(order_2) }.to raise_error(ActiveJob::DeserializationError)
       end
     end
   end
